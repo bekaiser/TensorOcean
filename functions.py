@@ -339,7 +339,7 @@ def get_hydro(my_file,count):
 
  return N2, SA, CT, eps, z
 
-
+"""
 def throw_points( A, N2, SA, CT, eps, z ):
  locs = np.argwhere(np.isnan(A)-1)[:,0]
  #print(locs)
@@ -351,6 +351,7 @@ def throw_points( A, N2, SA, CT, eps, z ):
  z = z[locs]
  return N2, SA, CT, eps, z
 
+
 def nanrid( N2, SA, CT, eps, z ):
  # get rid of nans!
  [N2, SA, CT, eps, z] = throw_points( N2, N2, SA, CT, eps, z )
@@ -358,6 +359,26 @@ def nanrid( N2, SA, CT, eps, z ):
  [N2, SA, CT, eps, z] = throw_points( CT, N2, SA, CT, eps, z )
  [N2, SA, CT, eps, z] = throw_points( eps, N2, SA, CT, eps, z )
  return N2, SA, CT, eps, z
+"""
+
+def throw_points( A, N2, SA, CT, eps ):
+ locs = np.argwhere(np.isnan(A)-1)[:,0]
+ #print(locs)
+ #print(N2[locs])
+ N2 = N2[locs]
+ SA = SA[locs]
+ CT = CT[locs]
+ eps = eps[locs]
+ return N2, SA, CT, eps
+
+def nanrid( N2, SA, CT, eps ):
+ # get rid of nans!
+ [N2, SA, CT, eps] = throw_points( N2, N2, SA, CT, eps )
+ [N2, SA, CT, eps] = throw_points( SA, N2, SA, CT, eps )
+ [N2, SA, CT, eps] = throw_points( CT, N2, SA, CT, eps )
+ [N2, SA, CT, eps] = throw_points( eps, N2, SA, CT, eps )
+ return N2, SA, CT, eps
+
 
 def contour_plots( N2, SA, CT, eps ):
 
