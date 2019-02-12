@@ -21,11 +21,11 @@ from os import listdir
 from os.path import isfile, join
 from sklearn import linear_model
 import statsmodels.api as sm
-from functions import get_hydro, throw_points, interp_to_edges, weights, nanrid
+import functions as fn #import get_hydro, throw_points, interp_to_edges, weights, nanrid
 
 
-figure_path = "/home/bryan/data/dlm/figures/"
-data_path = "/home/bryan/data/dlm/data/"
+figure_path = "./figures/" #"/home/bryan/data/dlm/figures/"
+output_path = "/home/bryan/data/dlm/data/"
 micro_path = "/home/bryan/data/dlm/UCSD_microstructure/"
 
 N2 = np.empty([0])
@@ -51,10 +51,10 @@ for i in range(0,Nfold-1):
  onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path, f))]
  Nfiles = np.shape(onlyfiles)[0] # number of files (time steps)
 
- for j in range(0,Nfiles): #Nfiles):
+ for j in range(0,Nfiles):
    my_file = data_path + '/' + onlyfiles[j] # "bbtre96_10.nc"
    print('file =', my_file)
-   [N2j, SAj, CTj, epsj, zj] = get_hydro(my_file,count)
+   [N2j, SAj, CTj, epsj, zj] = fn.get_hydro(my_file,count)
    N2=np.concatenate((N2,N2j),axis=0)
    SA=np.concatenate((SA,SAj),axis=0)
    CT=np.concatenate((CT,CTj),axis=0)
@@ -65,57 +65,74 @@ for i in range(0,Nfold-1):
 
 
 # clean up the data:
+[N2, SA, CT, eps, z] = fn.nanrid( N2, SA, CT, eps, z )
+[N2, SA, CT, eps, z] = fn.remove_outliers( N2, SA, CT, eps, z )
 
-[N2, SA, CT, eps, z] = nanrid( N2, SA, CT, eps, z )
-[N2, SA, CT, eps, z] = remove_outliers( N2, SA, CT, eps, z )
+
+# pdf plots:
+fn.pdf_plot( N2, SA, CT, eps, z )
+#[eps_mu,eps_sig,eps_sk,eps_fl,eps_min,eps_max] = fn.pdf( eps )
 
 
 # scatter plots:
 
-plotname = figure_path +'scatter_N2.png' #%(start_time,end_time)
+epsbar = ( np.log10(eps) - np.log10(np.nanmean(eps)) ) / np.log10(np.nanmean(eps))
+N2bar = ( np.log10(N2) - np.log10(np.nanmean(N2)) ) / np.log10(np.nanmean(N2))
+CTbar = ( (CT) - (np.nanmean(CT)) ) / (np.nanmean(CT))
+SAbar = ( (SA) - (np.nanmean(SA)) ) / (np.nanmean(SA))
+
+plotname = figure_path +"scatter_N2.png" #%(start_time,end_time)
 fig = plt.figure()
-plt.scatter(eps/np.nanmean(eps),N2/np.nanmean(N2),marker='o', color='blue')#,label="computed")
-plt.xlabel(r"$\varepsilon/\overline{\varepsilon}$",fontsize=13);
-plt.ylabel(r"$N^2/\overline{N^2}$",fontsize=13); 
+plt.scatter(np.log10(eps),np.log10(N2),marker='o', color='blue',alpha=0.3)#,label="computed")
+plt.xlabel(r"log$_{10}({\varepsilon})$",fontsize=13);
+plt.ylabel(r"log$_{10}(N^2)$",fontsize=13); 
 plt.grid(True)
 plt.savefig(plotname,format="png"); plt.close(fig);
 
 plotname = figure_path +'scatter_CT.png' #%(start_time,end_time)
 fig = plt.figure()
-plt.scatter(eps/np.nanmean(eps),CT/np.nanmean(CT),marker='o', color='blue')#,label="computed")
-plt.xlabel(r"$\varepsilon/\overline{\varepsilon}$",fontsize=13);
-plt.ylabel(r"$\Theta/\overline{\Theta}$",fontsize=13); 
+plt.scatter(np.log10(eps),CT,marker='o', color='blue',alpha=0.3)#,label="computed")
+plt.xlabel(r"log$_{10}({\varepsilon})$",fontsize=13);
+plt.ylabel(r"$\overline{\Theta}$",fontsize=13); 
 plt.grid(True)
 plt.savefig(plotname,format="png"); plt.close(fig);
 
 plotname = figure_path +'scatter_SA.png' #%(start_time,end_time)
 fig = plt.figure()
-plt.scatter(eps/np.nanmean(eps),SA/np.nanmean(SA),marker='o', color='blue')#,label="computed")
-plt.xlabel(r"$\varepsilon/\overline{\varepsilon}$",fontsize=13);
-plt.ylabel(r"$S_A/\overline{S}_A$",fontsize=13); 
+plt.scatter(np.log10(eps),SA,marker='o', color='blue',alpha=0.3)#,label="computed")
+plt.xlabel(r"log$_{10}({\varepsilon})$",fontsize=13);
+plt.ylabel(r"$\overline{S}_A$",fontsize=13); 
+plt.grid(True)
+plt.savefig(plotname,format="png"); plt.close(fig);
+
+plotname = figure_path +'scatter_z.png' #%(start_time,end_time)
+fig = plt.figure()
+plt.scatter(np.log10(eps),z,marker='o', color='blue',alpha=0.3)#,label="computed")
+plt.xlabel(r"log$_{10}(\overline{\varepsilon})$",fontsize=13);
+plt.ylabel(r"$z$",fontsize=13); 
 plt.grid(True)
 plt.savefig(plotname,format="png"); plt.close(fig);
 
 nu = 1e-6
-Reb = eps/(nu*N2)
+Reb = eps/(nu*abs(N2))
 plotname = figure_path +'scatter_Reb.png' #%(start_time,end_time)
 fig = plt.figure()
-plt.scatter(eps/np.nanmean(eps),Reb,marker='o', color='blue')#,label="computed")
-plt.xlabel(r"$\varepsilon/\overline{\varepsilon}$",fontsize=13);
-plt.ylabel(r"Re$_b$",fontsize=13); 
-plt.axis([-10.,450.,-10000.,10000.])
+plt.scatter(np.log10(eps),np.log10(Reb),marker='o', color='blue',alpha=0.3)#,label="computed")
+plt.xlabel(r"log$_{10}(\overline{\varepsilon})$",fontsize=13);
+plt.ylabel(r"log$_{10}$Re$_b$",fontsize=13); 
+#plt.axis([-10.5,-4.,-2000.,500000.])
 plt.grid(True)
 plt.savefig(plotname,format="png"); plt.close(fig);
 
 
 # write names to .txt file
-with open("plotnames.txt", "w") as text_file:
+with open(output_path + "plotnames.txt", "w") as text_file:
  for  k in range(0,count):
   variable = str(k)
   text_file.write( variable + '  ' + plot_filenames[k] + '\n')
 
 # write data to .h5 file
-h5_filename = data_path + 'microdata.h5' #%(Ni[0,0],Ni[Nfiles-1,1]) # FIX PATH AND NAME
+h5_filename = output_path + "microdata.h5" 
 f2 = h5py.File(h5_filename, "w")
 dset = f2.create_dataset('N2', data=N2, dtype='f8')
 dset = f2.create_dataset('SA', data=SA, dtype='f8')

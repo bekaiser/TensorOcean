@@ -339,7 +339,6 @@ def get_hydro(my_file,count):
 
  return N2, SA, CT, eps, z
 
-"""
 def throw_points( A, N2, SA, CT, eps, z ):
  locs = np.argwhere(np.isnan(A)-1)[:,0]
  #print(locs)
@@ -359,8 +358,8 @@ def nanrid( N2, SA, CT, eps, z ):
  [N2, SA, CT, eps, z] = throw_points( CT, N2, SA, CT, eps, z )
  [N2, SA, CT, eps, z] = throw_points( eps, N2, SA, CT, eps, z )
  return N2, SA, CT, eps, z
-"""
 
+"""
 def throw_points( A, N2, SA, CT, eps ):
  locs = np.argwhere(np.isnan(A)-1)[:,0]
  #print(locs)
@@ -378,7 +377,7 @@ def nanrid( N2, SA, CT, eps ):
  [N2, SA, CT, eps] = throw_points( CT, N2, SA, CT, eps )
  [N2, SA, CT, eps] = throw_points( eps, N2, SA, CT, eps )
  return N2, SA, CT, eps
-
+"""
 
 def contour_plots( N2, SA, CT, eps ):
 
@@ -578,7 +577,7 @@ def raw_pdf_plot( N2, SA, CT, eps ):
  return
 
 
-def remove_outliers( N2, SA, CT, eps ):
+def remove_outliers( N2, SA, CT, eps, z ):
  Np = np.shape(eps)[0]
 
  for j in range(0,Np):
@@ -586,7 +585,7 @@ def remove_outliers( N2, SA, CT, eps ):
    eps[j] = np.nan
   if eps[j] <= 1e-12:
    eps[j] = np.nan
- [N2, SA, CT, eps] = nanrid( N2, SA, CT, eps )
+ [N2, SA, CT, eps, z] = nanrid( N2, SA, CT, eps, z )
  Np = np.shape(eps)[0]
 
  for j in range(0,Np):
@@ -594,7 +593,7 @@ def remove_outliers( N2, SA, CT, eps ):
    N2[j] = np.nan
   if abs(N2[j]) <= 1e-9:
    eps[j] = np.nan
- [N2, SA, CT, eps] = nanrid( N2, SA, CT, eps )
+ [N2, SA, CT, eps, z] = nanrid( N2, SA, CT, eps, z )
  Np = np.shape(eps)[0]
 
  for j in range(0,Np):
@@ -602,7 +601,7 @@ def remove_outliers( N2, SA, CT, eps ):
    SA[j] = np.nan
   if SA[j] <= 33.:
    SA[j] = np.nan
- [N2, SA, CT, eps] = nanrid( N2, SA, CT, eps )
+ [N2, SA, CT, eps, z] = nanrid( N2, SA, CT, eps, z )
  Np = np.shape(eps)[0]
 
  for j in range(0,Np):
@@ -610,12 +609,12 @@ def remove_outliers( N2, SA, CT, eps ):
    CT[j] = np.nan
   if CT[j] <= 0.:
    CT[j] = np.nan
- [N2, SA, CT, eps] = nanrid( N2, SA, CT, eps )
+ [N2, SA, CT, eps, z] = nanrid( N2, SA, CT, eps, z )
  Np = np.shape(eps)[0]
 
- return N2, SA, CT, eps
+ return N2, SA, CT, eps, z
 
-def pdf_plot( N2, SA, CT, eps ):
+def pdf_plot( N2, SA, CT, eps, z ):
  
  binsize = int((np.log10(np.amax(eps))-np.log10(np.amin(eps)))/0.05)
  plotname = figure_path +'histogram_eps.png' 
@@ -653,6 +652,16 @@ def pdf_plot( N2, SA, CT, eps ):
  plt.hist(np.log10(N2), color = 'blue', edgecolor = 'black',
          bins = binsize)
  plt.xlabel(r"log$_{10}(N^2)$",fontsize=13)
+ plt.ylabel(r"number of measurements",fontsize=13)
+ #ax.set_zlabel(r"$\varepsilon/\overline{\varepsilon}$",fontsize=13)
+ plt.savefig(plotname,format="png"); plt.close(fig);
+
+ binsize = int((np.amax(z)-np.amin(z))/10.)
+ plotname = figure_path +'histogram_z.png' 
+ fig = plt.figure(figsize=(8,5))
+ plt.hist(z, color = 'blue', edgecolor = 'black',
+         bins = binsize)
+ plt.xlabel(r"z",fontsize=13)
  plt.ylabel(r"number of measurements",fontsize=13)
  #ax.set_zlabel(r"$\varepsilon/\overline{\varepsilon}$",fontsize=13)
  plt.savefig(plotname,format="png"); plt.close(fig);
