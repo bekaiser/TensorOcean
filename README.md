@@ -1,2 +1,2 @@
-# Data processing for the UCSD microstructure database
-Python scripts for reformatting the UCSD microstructure database (https://microstructure.ucsd.edu) into a single hdf5 file.
+# Deep learning for oceanic turbulent dissipation rate of kinetic energy prediction
+Tensorflow is used to train mixture density networks for predicting the dissipation rate of turbulent kinetic energy from conservative temperature, absolution salinity, the square of the buoyancy frequency, and the location in the water column. The UCSD microstructure database (https://microstructure.ucsd.edu) is used for training.
