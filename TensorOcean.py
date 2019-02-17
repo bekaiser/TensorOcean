@@ -41,7 +41,7 @@ plot_filenames = []
 onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path, f))]
 Nfiles = np.shape(onlyfiles)[0] # number of files (time steps)
 
-Nfiles = 80
+Nfiles = 60
 
 for j in range(0,Nfiles):
    my_file = data_path + '/' + onlyfiles[j] 
