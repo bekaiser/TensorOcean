@@ -57,7 +57,7 @@ def get_lossfunc(out_pi, out_sigma, out_mu, y):
 
 
 def get_pi_idx(x, pdf):
-  N = pdf.size
+  N = np.shape(pdf)[0]
   accumulate = 0
   for i in range(0, N):
     accumulate += pdf[i]
@@ -69,13 +69,11 @@ def get_pi_idx(x, pdf):
 
 def generate_ensemble(out_pi, out_mu, out_sigma, x_test , M ):
   NTEST = np.shape(x_test)[0] #x_test.size
-  #print(NTEST)
   result = np.random.rand(NTEST, M) # initially random [0, 1]
   rn = np.random.randn(NTEST, M) # normal random matrix (0.0, 1.0)
   mu = 0
   std = 0
   idx = 0
-
   # transforms result into random ensembles
   for j in range(0, M):
     for i in range(0, NTEST):
@@ -86,9 +84,8 @@ def generate_ensemble(out_pi, out_mu, out_sigma, x_test , M ):
   return result
 
 
-
 # =============================================================================    
-# classes and functions
+# all other functions
 
 def interp_to_edges( self_center , ze , zc , flag ):
  # self is centers
@@ -198,7 +195,6 @@ def weights(z,x,m):
       c[j,0] = c4*c[j,0]/c3
     c1 = c2
   return c
-
 
 
 def grid_check_zoom(A,z,Ae,ze,Ac,zc,fig_title,fig_xlabel,fig_plotname,fig_axis1,fig_axis2,fig_axis3,log_flag,range_number):
@@ -369,7 +365,7 @@ def get_hydro(my_file,count):
  #CT_mid = interp_to_centers( CT , z_mid , z )
 
  N2 = remove_bad_N2( N2 )
-
+ """
  plotname = figure_path +'N2_%i.png' %(count)
  fig = plt.figure()
  plt.plot(N2_mid,z_mid,'r')#,label="computed")
@@ -401,8 +397,19 @@ def get_hydro(my_file,count):
  plt.axis('tight') #[-0.0001,0.0005,-35.,-23.])
  #plt.grid()
  plt.savefig(plotname,format="png"); plt.close(fig);
-
+ """
  return N2, SA, CT, eps, z
+
+def throw_points_in_z( N2, SA, CT, eps, z , threshold):
+ #print('size = ',np.shape(N2))
+ for jj in range(0,np.shape(N2)[0]):
+  if z[jj] > threshold: 
+   N2[jj] = np.nan
+   SA[jj] = np.nan
+   CT[jj] = np.nan
+   eps[jj] = np.nan
+   z[jj] = np.nan
+ return nanrid( N2, SA, CT, eps, z )
 
 def throw_points( A, N2, SA, CT, eps, z ):
  locs = np.argwhere(np.isnan(A)-1)[:,0]
@@ -732,6 +739,21 @@ def pdf_plot( N2, SA, CT, eps, z ):
  plt.savefig(plotname,format="png"); plt.close(fig);
 
  return
+
+def pdf_plot_eps( eps ):
+ 
+ binsize = int((np.log10(np.amax(eps))-np.log10(np.amin(eps)))/0.05)
+ plotname = figure_path +'histogram_eps.png' 
+ fig = plt.figure(figsize=(8,5))
+ plt.hist(np.log10(eps), color = 'blue', edgecolor = 'black',
+         bins = binsize)
+ plt.xlabel(r"log$_{10}(\varepsilon)$",fontsize=13)
+ plt.ylabel(r"number of measurements",fontsize=13)
+ #ax.set_zlabel(r"$\varepsilon/\overline{\varepsilon}$",fontsize=13)
+ plt.savefig(plotname,format="png"); plt.close(fig);
+
+ return
+
 
 def line_plot_with_errorbars(A,z,fig_title,fig_xlabel,fig_plotname,fig_axis,log_flag,nu):
  # plots the entire profile for bin mean inspection
