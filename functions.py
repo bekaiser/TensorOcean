@@ -335,6 +335,12 @@ def remove_bad_N2( N2 ):
     N2[k] = np.nan
  return N2
 
+def get_stats( A ):
+ sigma = np.nanstd(A)
+ mu = np.nanmean(A)
+ skew = np.nanmean( ((A-mu)/sigma)**3. )
+ kurt = np.nanmean( ((A-mu)/sigma)**4. ) - 3.
+ return mu,sigma,skew,kurt 
 
 def get_hydro(my_file,count):
  f = Dataset(my_file, mode='r')
@@ -398,6 +404,8 @@ def get_hydro(my_file,count):
  #plt.grid()
  plt.savefig(plotname,format="png"); plt.close(fig);
  """
+
+ f.close()
  return N2, SA, CT, eps, z
 
 def throw_points_in_z( N2, SA, CT, eps, z , threshold):
@@ -685,6 +693,21 @@ def remove_outliers( N2, SA, CT, eps, z ):
  Np = np.shape(eps)[0]
 
  return N2, SA, CT, eps, z
+
+
+def remove_outliers_eps( eps ):
+ Np = np.shape(eps)[0]
+ #print(Np)
+ for j in range(0,Np):
+  if eps[j] >= -4:
+   eps[j] = np.nan
+  if eps[j] <= -12:
+   eps[j] = np.nan
+ locs = np.argwhere(np.isnan(eps)-1)
+ #print(locs)
+ eps = eps[locs]
+ return eps
+
 
 def pdf_plot( N2, SA, CT, eps, z ):
  
