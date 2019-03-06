@@ -20,7 +20,7 @@ import gsw
 from os import listdir
 from os.path import isfile, join
 from sklearn import linear_model
-import statsmodels.api as sm
+#import statsmodels.api as sm
 import functions as fn #import get_hydro, throw_points, interp_to_edges, weights, nanrid
 
 
@@ -70,7 +70,7 @@ for i in range(0,Nfold-1):
 
 
 # pdf plots:
-fn.pdf_plot( N2, SA, CT, eps, z )
+#fn.pdf_plot( N2, SA, CT, eps, z ) # FIX: MAKE TRUE PDF!
 #[eps_mu,eps_sig,eps_sk,eps_fl,eps_min,eps_max] = fn.pdf( eps )
 
 

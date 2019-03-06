@@ -297,7 +297,7 @@ def grid_check(A,z,Ae,ze,Ac,zc,fig_title,fig_xlabel,fig_plotname,fig_axis,log_fl
 
 def remove_bad_eps( eps ):
  Neps = np.shape(eps)[0]
- #print(Neps)
+ print(np.shape(eps))
  for k in range(0,Neps):
   if abs(eps[k]) >= 1e-2:
     eps[k] = np.nan
@@ -345,6 +345,94 @@ def get_stats( A ):
 def get_hydro(my_file,count):
  f = Dataset(my_file, mode='r')
  
+ while True:
+   try:
+     #x = int(input("Please enter a number: "))
+     eps = f.variables['EPSILON'][:]
+     eps = remove_bad_eps( eps )
+     lat = f.variables['LATITUDE'][:]
+     lon = f.variables['LONGITUDE'][:]
+     p = f.variables['PRESSURE'][:]
+     SP = f.variables['PSAL'][:]
+     T = f.variables['TEMPERATURE'][:]
+     break
+   except KeyError:
+     #print("Variables don't match") 
+     #print(my_file)
+
+     if ((my_file.split('/'))[7]).split('_')[0] == 'FjordEco':
+       eps = f.variables['epsilon'][:]
+       lat = f.variables['lat'][:]
+       lon = f.variables['lon'][:]
+       p = f.variables['pressure'][:]
+       SP = f.variables['S'][:]
+       T = f.variables['T'][:]
+       pn = np.zeros(np.shape(T))
+       for i in range(0,np.shape(T)[0]):
+         pn[i,:] = p[:]
+       #print(np.shape(p),np.shape(T))
+
+       # add function for size of files! If 2d, make 1d:
+       eps = eps.flatten('F')
+       lat = lat.flatten('F')
+       lon = lon.flatten('F')
+       p = pn.flatten('F')
+       SP = SP.flatten('F')
+       T = T.flatten('F')
+
+       eps = remove_bad_eps( eps )
+
+     if ((my_file.split('/'))[7]).split('_')[0] == 'Samoan':
+       eps = f.variables['epsilon'][:]
+       #lat = f.variables['lat'][:]
+       #lon = f.variables['lon'][:]
+       p = f.variables['pressure'][:]
+       SP = f.variables['salinity'][:]
+       T = f.variables['temperature'][:]
+       # MANUALLY ADD LAT LON
+     
+     if ((my_file.split('/'))[7]).split('_')[0] == 'MIXET':
+       eps = f.variables['epsilon'][:]
+       #lat = f.variables['lat'][:]
+       #lon = f.variables['lon'][:]
+       p = f.variables['pressure'][:]
+       SP = f.variables['salinity'][:]
+       T = f.variables['temperature'][:]
+       # MANUALLY ADD LAT LON
+     
+     if ((my_file.split('/'))[7]).split('_')[0] == 'EXITS1':
+       eps = f.variables['epsilon'][:]
+       eps = remove_bad_eps( eps )
+       #lat = f.variables['LATITUDE'][:]
+       #lon = f.variables['LONGITUDE'][:]
+       p = f.variables['pressure'][:]
+       SP = f.variables['salinity'][:]
+       T = f.variables['temperature'][:]
+       # MANUALLY ADD LAT LON
+
+     if ((my_file.split('/'))[7]).split('_')[0] == 'EXITS2':
+       eps = f.variables['epsilon'][:]
+       eps = remove_bad_eps( eps )
+       #lat = f.variables['LATITUDE'][:]
+       #lon = f.variables['LONGITUDE'][:]
+       p = f.variables['pressure'][:]
+       SP = f.variables['salinity'][:]
+       T = f.variables['temperature'][:]
+       # MANUALLY ADD LAT LON
+
+     if ((my_file.split('/'))[7]).split('_')[0] == 'EXITS3':
+       eps = f.variables['epsilon'][:]
+       eps = remove_bad_eps( eps )
+       #lat = f.variables['LATITUDE'][:]
+       #lon = f.variables['LONGITUDE'][:]
+       p = f.variables['pressure'][:]
+       SP = f.variables['salinity'][:]
+       T = f.variables['temperature'][:]
+       # MANUALLY ADD LAT LON
+
+     break
+
+ """
  eps = f.variables['EPSILON'][:]
  eps = remove_bad_eps( eps )
  lat = f.variables['LATITUDE'][:]
@@ -352,7 +440,9 @@ def get_hydro(my_file,count):
  p = f.variables['PRESSURE'][:]
  SP = f.variables['PSAL'][:]
  T = f.variables['TEMPERATURE'][:]
-
+ """
+ 
+ #print(np.shape(eps),np.shape(lat),np.shape(p))
  z = gsw.z_from_p(p,lat) # m
  SA = gsw.SA_from_SP(SP,p,lon,lat) #  g/kg, absolute salinity
  CT = gsw.CT_from_t(SA,T,p) # C, conservative temperature

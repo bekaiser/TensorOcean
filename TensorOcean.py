@@ -40,7 +40,7 @@ plot_filenames = []
 onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path, f))]
 Nfiles = np.shape(onlyfiles)[0] # number of files (time steps)
 
-Nfiles = 40
+Nfiles = 20
 Noffset = 10
 Nfiles0 = Nfiles
 
@@ -183,9 +183,9 @@ z_test = z
 # learning via mixture density network (Bishop 1994)
 
 # construct the MDN:
-NHIDDEN = 24
+NHIDDEN = 96
 STDEV = 0.5
-KMIX = 800 # number of mixtures
+KMIX = 100 # number of mixtures
 NOUT = KMIX * 3 # pi, mu, stdev
 
 x = tf.placeholder(dtype=tf.float32, shape=[None,NMULTI], name="x") 
@@ -209,7 +209,7 @@ train_op = tf.train.AdamOptimizer().minimize(lossfunc)
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
-NEPOCH = 1000 
+NEPOCH = 3000 
 loss = np.zeros(NEPOCH) # store the training progress here.
 for i in range(NEPOCH):
   sess.run(train_op,feed_dict={x: X_DATA, y: y_data})
@@ -279,7 +279,8 @@ print('test data = ',fn.get_stats( test_log10eps ))
 print('test result = ',fn.get_stats( y_test_pred_f ))
 
 
-
+# =============================================================================
+# save the mixture / plot components
 
 
 
